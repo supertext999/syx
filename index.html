@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测测你在甄嬛传里能活到第几集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "KaiTi", "STKaiti", "SimSun", serif;
+        }
+        body {
+            background-color: #f6efe3;
+            color: #59382c;
+            padding: 20px 12px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #fffaf0;
+            border: 2px solid #b48c6e;
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 6px 22px rgba(80, 45, 25, 0.18);
+        }
+        h1 {
+            font-size: 32px;
+            text-align: center;
+            color: #803b3b;
+            margin-bottom: 10px;
+        }
+        .sub-tip {
+            font-size: 16px;
+            text-align: center;
+            color: #946b54;
+            margin-bottom: 30px;
+        }
+        /* 首页面板 */
+        .start-wrap {
+            text-align: center;
+            padding: 20px 10px;
+        }
+        .start-wrap p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 36px;
+        }
+        .start-btn {
+            font-size: 21px;
+            padding: 14px 42px;
+            border: 1px solid #995b44;
+            background-color: #e9d4c3;
+            color: #633427;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .start-btn:hover {
+            background-color: #ddbea8;
+        }
+        /* 答题面板 */
+        .question-wrap {
+            display: none;
+        }
+        .progress {
+            font-size: 16px;
+            color: #8c5f47;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        /* 题目字号大，选项字号小，区分开 */
+        .question-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 26px;
+            line-height: 1.7;
+        }
+        .option-item {
+            font-size: 18px;
+            border: 1px solid #d4b8a3;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .option-item:hover {
+            background-color: #f2e3d5;
+        }
+        .option-item.selected {
+            background-color: #d9b99f;
+            border-color: #b07e62;
+        }
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+        }
+        .btn-row button {
+            font-size: 17px;
+            padding: 10px 24px;
+            border: 1px solid #995b44;
+            background-color: #e9d4c3;
+            color: #633427;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-row button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        /* 结果面板 */
+        .result-wrap {
+            display: none;
+            text-align: center;
+        }
+        .result-title {
+            font-size: 28px;
+            color: #803b3b;
+            margin-bottom: 22px;
+        }
+        .result-desc {
+            font-size: 19px;
+            line-height: 1.9;
+            text-align: left;
+            margin-bottom: 34px;
+        }
+        .restart-btn {
+            font-size: 20px;
+            padding: 12px 36px;
+            border: 1px solid #995b44;
+            background-color: #e9d4c3;
+            color: #633427;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>测测你在甄嬛传里能活到第几集</h1>
+        <div class="sub-tip">深宫生存考卷 · 18题</div>
+
+        <!-- 首页 -->
+        <div class="start-wrap" id="startBox">
+            <p>
+                一入宫门深似海，很多选择看着稳妥，实则暗藏陷阱<br>
+                没有一眼看穿的标准答案，来测测你的深宫生存能力！
+            </p>
+            <button class="start-btn" onclick="startTest()">开始答题</button>
+        </div>
+
+        <!-- 答题区 -->
+        <div class="question-wrap" id="qBox">
+            <div class="progress" id="progressText"></div>
+            <div class="question-title" id="qTitle"></div>
+            <div id="optWrap"></div>
+            <div class="btn-row">
+                <button id="prevBtn" onclick="prevQuestion()">上一题</button>
+                <button id="nextBtn" onclick="nextQuestion()">下一题</button>
+            </div>
+        </div>
+
+        <!-- 结果区 -->
+        <div class="result-wrap" id="resultBox">
+            <div class="result-title" id="resTitle"></div>
+            <div class="result-desc" id="resText"></div>
+            <button class="restart-btn" onclick="resetAll()">重新测试</button>
+        </div>
+    </div>
+
+<script>
+const questionList = [
+    {
+        q: "你低位份，无意中听见两位高位小主私下争执，其中一人要构陷另一人，你会？",
+        opt: [
+            {t:"装作没听见，立刻绕路离开，绝不停留", s:1},
+            {t:"悄悄记下这件事，留着日后自保用", s:3},
+            {t:"私下提醒被构陷的那位，提醒她提防", s:2},
+            {t:"转头禀报皇后，当做投名状", s:4}
+        ]
+    },
+    {
+        q: "华妃赏你点心，你知道华妃一向防备新人，这份点心你怀疑有问题，怎么做？",
+        opt: [
+            {t:"当面谢恩收下，回去之后妥善处理不吃", s:1},
+            {t:"当场以身体不适为由，婉拒点心", s:4},
+            {t:"收下分给身边宫女，看谁敢先吃", s:3},
+            {t:"当着华妃的面品尝，表现得十分感激", s:2}
+        ]
+    },
+    {
+        q: "甄嬛正避宠，她身边的槿汐私下找你，想借你的人手传递消息，你？",
+        opt: [
+            {t:"委婉推脱，不掺和，但也不告发", s:1},
+            {t:"答应帮忙，但是全程不留任何文字凭据", s:2},
+            {t:"表面答应，转头告诉皇后换取好处", s:3},
+            {t:"直接回绝，并且立刻上报给内务府", s:4}
+        ]
+    },
+    {
+        q: "皇上夸你聪慧，随口问你：你觉得华妃性子如何？",
+        opt: [
+            {t:"只说华妃娘娘忠心，其余一概不评价", s:1},
+            {t:"说娘娘性子直，喜怒都摆在明面上", s:2},
+            {t:"顺着皇上的话，细数华妃骄纵的地方", s:3},
+            {t:"直言华妃跋扈，恐难以担协理六宫之责", s:4}
+        ]
+    },
+    {
+        q: "安陵容深夜来找你，拿出新制香料，说只愿意和你分享，你清楚她的香料暗藏门道",
+        opt: [
+            {t:"收下存放，绝不主动点燃使用", s:1},
+            {t:"陪她一起品鉴，夸她手艺精巧", s:2},
+            {t:"劝她少钻研这些，容易落人口实", s:3},
+            {t:"直接拒绝，提醒她别用香料害人", s:4}
+        ]
+    },
+    {
+        q: "沈眉庄和温实初往来的事，被你无意撞见，眉庄恳求你替她保密",
+        opt: [
+            {t:"答应保密，但之后刻意疏远避开二人", s:1},
+            {t:"答应保守秘密，依旧和眉庄照常往来", s:2},
+            {t:"暗示眉庄这是隐患，劝她尽早收手", s:3},
+            {t:"权衡利弊，找机会向皇后揭发", s:4}
+        ]
+    },
+    {
+        q: "祺贵人拉你一起去皇后宫里作证，说甄嬛和温实初有私，你并没有亲眼看见",
+        opt: [
+            {t:"借口身子不适，不去作证，置身事外", s:1},
+            {t:"到场，但一言不发，不做任何证词", s:2},
+            {t:"顺着祺贵人的说辞，添几句模棱两可的话", s:3},
+            {t:"当众直言此事无凭无据，不能冤枉甄嬛", s:4}
+        ]
+    },
+    {
+        q: "你的贴身丫鬟被皇后宫里的人收买，拿你的把柄要挟你投靠皇后，你？",
+        opt: [
+            {t:"稳住丫鬟，慢慢寻机会悄悄送走，不留后患", s:1},
+            {t:"假意顺从皇后，暗中保留对方要挟你的证据", s:2},
+            {t:"直接发落丫鬟，杀鸡儆猴，回绝皇后招揽", s:3},
+            {t:"主动向皇上坦白，把所有事情上交", s:4}
+        ]
+    },
+    {
+        q: "宫里时疫蔓延，有小主私下找你，想和你互换隔离居所躲避，你会？",
+        opt: [
+            {t:"拒绝交换，守在自己住处，不轻易挪动", s:1},
+            {t:"谨慎考虑，确认无风险再答应交换", s:2},
+            {t:"答应交换，借机卖人情给这位小主", s:3},
+            {t:"把这件事上报，避免私换居所获罪", s:4}
+        ]
+    },
+    {
+        q: "皇后给你送了一支名贵珠钗，旁人都说戴了代表站皇后一派，你？",
+        opt: [
+            {t:"收下收好，庆典大典偶尔戴一次，平时不戴", s:1},
+            {t:"收下，日常佩戴，领皇后这份人情", s:2},
+            {t:"委婉推辞，说福薄配不上这样贵重首饰", s:3},
+            {t:"收下之后转手送给别的低位小主", s:4}
+        ]
+    },
+    {
+        q: "倚梅园除夕夜，你捡到小像，旁边没有旁人，你怎么处置？",
+        opt: [
+            {t:"就地埋好，假装从来没有见过", s:1},
+            {t:"收好藏起来，不到万不得已绝不拿出", s:2},
+            {t:"拿着小像，伺机献给皇上博圣宠", s:3},
+            {t:"直接交给苏培盛，交由他处置", s:4}
+        ]
+    },
+    {
+        q: "皇上打算提拔你，但是要你去制衡甄嬛，你本身和甄嬛没有过节",
+        opt: [
+            {t:"领旨，但只做分内之事，不主动构陷甄嬛", s:2},
+            {t:"想办法委婉推辞这份差事", s:1},
+            {t:"抓住机会，拼命打压甄嬛立功", s:3},
+            {t:"私下告诉甄嬛皇上的安排，提前通风报信", s:4}
+        ]
+    },
+    {
+        q: "别的小主失宠，她的下人偷偷跑来投奔你，愿意给你提供旧主情报",
+        opt: [
+            {t:"不收留，打发她回原来的宫里", s:1},
+            {t:"收下，但是严加看管，不轻易信任", s:2},
+            {t:"收下，利用她打探消息对付其他嫔妃", s:3},
+            {t:"直接把这个下人交给内务府处置", s:4}
+        ]
+    },
+    {
+        q: "宴会上有人当众拿你的出身开玩笑，贬低你，皇上在一旁看着，你？",
+        opt: [
+            {t:"从容接话，不悲不怒，不跟对方争执", s:1},
+            {t:"委屈垂泪，等着皇上替你做主", s:2},
+            {t:"当场反唇相讥，怼回去维护自己", s:3},
+            {t:"沉默不语，之后找机会报复对方", s:4}
+        ]
+    },
+    {
+        q: "端妃托人传话，想和你结盟一起防备皇后，你知道端妃常年称病，势力微弱",
+        opt: [
+            {t:"礼貌回应，保持距离，不深度结盟", s:1},
+            {t:"答应结盟，互相照应，但是守住底线", s:2},
+            {t:"转头告诉皇后，拿这个消息换取信任", s:3},
+            {t:"直接回绝，觉得端妃帮不上你", s:4}
+        ]
+    },
+    {
+        q: "你偶然发现内务府在克扣你的份例，管事太监想拿财物贿赂你封口",
+        opt: [
+            {t:"收下财物，但是默默记着，留作后手", s:2},
+            {t:"拒绝贿赂，不追究，不得罪内务府", s:1},
+            {t:"收下好处，和太监达成长期合作", s:3},
+            {t:"直接上报给皇后，严查内务府", s:4}
+        ]
+    },
+    {
+        q: "甄嬛回宫之后，宫里局势大变，很多人排队站队，你打算？",
+        opt: [
+            {t:"闭门不出，静观局势，不急于站队", s:1},
+            {t:"慢慢靠拢甄嬛，等局势明朗再表态", s:2},
+            {t:"立刻投靠皇后，一起对抗甄嬛", s:3},
+            {t:"主动上门，高调投奔甄嬛门下", s:4}
+        ]
+    },
+    {
+        q: "大局已定，皇后即将倒台，不少曾经依附皇后的人来找你求庇护",
+        opt: [
+            {t:"一概不见，不沾这些人的麻烦", s:1},
+            {t:"酌情帮一点点小忙，但是绝不担责", s:2},
+            {t:"收留他们，把他们收为自己人手", s:3},
+            {t:"把前来求庇护的人全部揭发出去", s:4}
+        ]
+    }
+];
+
+const resultList = [
+    {min:18,max:21,title:"【活到76集 · 端妃级苟王】",text:"深宫顶级隐形人！主打一个养病隐身，看透所有人的小算盘，谁都挑不出你的错。甄嬛登基你安稳养老，嗑瓜子看后宫乱斗，宜修、华妃都拿你没办法，你的人生信条：病着，但是活着。"},
+    {min:22,max:25,title:"【活到70集 · 槿汐级心腹】",text:"甄嬛金牌搭子，嘴严脑子灵！滴血验亲这种大场面你都能稳稳过关。唯一雷区：别去打听胧月弘瞻的身世瓜，管住嘴，荣华富贵吃到大结局！"},
+    {min:26,max:29,title:"【活到64集 · 敬妃摸鱼选手】",text:"敬妃同款摸鱼大师！不争不抢，靠胧月护身符保命。唯一短板心软，容易被姐妹道德绑架，只要不随便掺和大事，稳稳苟到最后。"},
+    {min:30,max:33,title:"【活到58集 · 后宫透明搭子】",text:"大隐隐于后宫，不爱出风头，人不犯我我不犯人。华妃倒台之后安稳度日，皇子争斗全不沾边，别人吃肉你喝汤，平安混到剧终。"},
+    {min:34,max:37,title:"【活到52集 · 眉庄傲骨选手】",text:"你有眉庄的傲气，重情重义，底线拉满！和甄嬛是真心闺蜜，但是恋爱脑是你的死穴，只要不爱上温实初，你能活很久，一旦动心直接寄！"},
+    {min:38,max:41,title:"【活到46集 · 后宫小透明嫔妃】",text:"资质平平，没有坏心眼，也没有顶级心机。不主动搞事，别人搞你你就躲。属于宫里小背景板，皇上偶尔想起你，不踩红线就能安稳过日子。"},
+    {min:42,max:45,title:"【活到40集 · 淳儿吃货选手】",text:"淳儿转世！心思单纯满脑子点心，没有坏心眼。但是深宫杀天真！你很容易逛御花园撞破秘密，忠告：御花园少逛，少吃点心，保命要紧！"},
+    {min:46,max:49,title:"【活到34集 · 陵容敏感选手】",text:"安陵容同款敏感内耗选手，聪明但是容易自卑嫉妒。选对路线可以苟住，要是被嫉妒冲昏头，马上开启制香下毒支线，最后喜提苦杏仁套餐！"},
+    {min:50,max:53,title:"【活到28集 · 曹琴默聪明反被聪明误】",text:"脑子够用，但是贪心拉满！擅长借刀杀人，到处捞好处，但是没有长久靠山。典型用完就扔工具人，就算赢了对手，最后躲不过鸟尽弓藏！"},
+    {min:54,max:57,title:"【活到24集 · 华妃跟班炮灰】",text:"华妃小弟，跟着华妃吃香喝辣，但是华妃就是定时炸弹！年家倒台那天，你第一个被清算，颂芝都比你活得久一点。"},
+    {min:58,max:60,title:"【活到20集 · 祺贵人蠢萌显眼包】",text:"祺贵人附体！有家世没脑子，爱嚼舌根，很容易被人当枪使。告发甄嬛名场面就是你的死亡flag，乱说话最后被乱棍抬走，纯纯显眼包！"},
+    {min:61,max:63,title:"【活到16集 · 余莺儿嘴硬选手】",text:"余氏同款剧本！得了一点恩宠就飘上天，恃宠而骄，嘴硬不服软。常在位子还没坐热，很快喜提毒酒套餐，主打一个飞得越高摔得越惨。"},
+    {min:64,max:65,title:"【活到12集 · 富察贵人嫉妒选手】",text:"嫉妒心上来就上头，别人一撺掇你就害人。格局很小，容易被当枪，甄嬛稍微一吓直接疯掉，后宫恐怖故事经典受害者。"},
+    {min:66,max:67,title:"【活到8集 · 采莲礼物炮灰】",text:"长得好看但是没有靠山，命运不由自己做主，皇上随手就能把你送人。随便一场风波，你就下线，属于工具人花瓶。"},
+    {min:68,max:70,title:"【活到4集 · 夏冬春一丈红选手】",text:"夏冬春转世！开局嚣张跋扈，谁都敢怼，入宫没几天直接喜提一丈红。名场面：这福气给你要不要，别人还没开始宫斗，你先领盒饭！"},
+    {min:71,max:72,title:"【第1集直接下线 · 秀女翻车选手】",text:"秀女殿选直接翻车！说话没分寸，冲撞圣驾，皇上一句花落了，直接淘汰，连宫门都进不去，全剧最短存活纪录，宫斗剧本都没拿到！"}
+];
+
+let current = 0;
+let score = 0;
+let userAnswers = [];
+
+// 开始测试
+function startTest() {
+    document.getElementById("startBox").style.display = "none";
+    document.getElementById("qBox").style.display = "block";
+    renderQuestion();
+}
+
+// 渲染当前题目
+function renderQuestion() {
+    const q = questionList[current];
+    document.getElementById("progressText").innerText = `第 ${current+1} / 18 题`;
+    document.getElementById("qTitle").innerText = q.q;
+    const optWrap = document.getElementById("optWrap");
+    optWrap.innerHTML = "";
+    q.opt.forEach((item,idx)=>{
+        let selected = userAnswers[current] === idx ? "selected" : "";
+        optWrap.innerHTML += `<div class="option-item ${selected}" onclick="selectOption(${idx})">${item.t}</div>`
+    })
+    // 控制上一题按钮
+    document.getElementById("prevBtn").disabled = current === 0;
+}
+
+// 选择选项
+function selectOption(idx) {
+    userAnswers[current] = idx;
+    renderQuestion();
+}
+
+// 上一题
+function prevQuestion() {
+    if(current > 0) {
+        current--;
+        renderQuestion();
+    }
+}
+
+// 下一题 / 出结果
+function nextQuestion() {
+    if(userAnswers[current] === undefined) return alert("请选择一个选项！");
+    if(current < questionList.length -1) {
+        current++;
+        renderQuestion();
+    } else {
+        showResult();
+    }
+}
+
+// 计算结果
+function showResult() {
+    score = 0;
+    userAnswers.forEach((idx, qIdx)=>{
+        score += questionList[qIdx].opt[idx].s;
+    })
+    let res = resultList.find(r=> score >= r.min && score <= r.max);
+    document.getElementById("qBox").style.display = "none";
+    document.getElementById("resultBox").style.display = "block";
+    document.getElementById("resTitle").innerText = res.title;
+    document.getElementById("resText").innerText = res.text;
+}
+
+// 重置全部
+function resetAll() {
+    current = 0;
+    score = 0;
+    userAnswers = [];
+    document.getElementById("startBox").style.display = "block";
+    document.getElementById("qBox").style.display = "none";
+    document.getElementById("resultBox").style.display = "none";
+}
+</script>
+</body>
+</html>
